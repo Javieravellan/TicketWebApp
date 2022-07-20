@@ -1,9 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using TicketWebApi.Models;
 
+var MiConfigCors = "AllHosts";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddCors(options => {
+    options.AddPolicy(name: MiConfigCors,
+        policy => {
+            policy.AllowAnyHeader();
+            policy.WithMethods("PUT", "GET", "OPTIONS", "POST", "DELETE");
+            policy.AllowAnyOrigin();
+        });
+});
 
 builder.Services.AddControllers();
 // Add Entity framework
@@ -25,6 +34,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(MiConfigCors);
 
 app.UseAuthorization();
 

@@ -21,7 +21,7 @@ public class TicketSysController : ControllerBase
         {
             return BadRequest("No se proporcionaron los datos para el ticket.");
         }
-
+        if (ticket.FechaIngreso == null) ticket.FechaIngreso = DateTime.Today;
         // Saving...
         _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
@@ -101,7 +101,7 @@ public class TicketSysController : ControllerBase
     {
         if (string.IsNullOrEmpty(nombreSolicitante))
             return BadRequest("El nombre del solicitante es incorrecto");
-        var tickets = _context.Tickets.Select(t => t.PersonaSolicitante == nombreSolicitante).ToList();
+        var tickets = _context.Tickets.Where(t => t.PersonaSolicitante == nombreSolicitante).ToList();
         
         if (tickets == null)
             return NotFound(string.Format("No hay tickets registrados a nombre de {0}.", nombreSolicitante));
