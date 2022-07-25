@@ -36,7 +36,8 @@ public class TicketSysController : ControllerBase
             PersonaSolicitante = t.PersonaSolicitante,
             Asunto = t.Asunto,
             Descripcion = t.Descripcion,
-            FechaIngreso = t.FechaIngreso
+            FechaIngreso = t.FechaIngreso,
+            HistorialIncidencia = t.HistorialIncidencia
         }).ToList();
 
         if (tickets.Count == 0) 
@@ -72,9 +73,12 @@ public class TicketSysController : ControllerBase
         ticketEncontrado!.Asunto = ticket.Asunto;
         ticketEncontrado.Descripcion = ticket.Descripcion;
         ticketEncontrado.PersonaSolicitante = ticket.PersonaSolicitante;
-        if (ticket.HistorialIncidencia.Count > 0)
-            ticketEncontrado.HistorialIncidencia.Union<HistorialIncidencium>(ticket.HistorialIncidencia);
-        
+        if (ticket.HistorialIncidencia.Count > 0) {
+            foreach(var ti in ticket.HistorialIncidencia) {
+                ticketEncontrado.HistorialIncidencia.Add(ti);
+            }
+            //ticketEncontrado.HistorialIncidencia = /*(HashSet<HistorialIncidencium>) */(ICollection<HistorialIncidencium>)ticketEncontrado.HistorialIncidencia.Concat(ticket.HistorialIncidencia).AsEnumerable();
+        }
         await _context.SaveChangesAsync();
         return Ok(ticketEncontrado);
     }
@@ -107,5 +111,16 @@ public class TicketSysController : ControllerBase
             return NotFound(string.Format("No hay tickets registrados a nombre de {0}.", nombreSolicitante));
         
         return Ok(tickets);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<bool>> DeleteTicketByTicketId(int id) 
+    {
+        if (id == 0) return BadRequest(string.Format("El ID proporcionado es igual {0}.", id));
+        var encontrado = await _context.Tickets.FindAsync(id);
+        if (encontrado == null) return NotFound(string.Format("No se encontró ticket con ID {0}", id));
+        _context.Tickets.Remove(encontrado);
+        await _context.SaveChangesAsync();
+        return Ok(true);
     }
 }

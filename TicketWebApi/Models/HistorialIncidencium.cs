@@ -11,6 +11,6 @@ namespace TicketWebApi.Models
         public string Comentario { get; set; } = null!;
         public int TicketId { get; set; }
 
-        public virtual Ticket Ticket { get; set; } = null!;
+        public virtual Ticket? Ticket { get; set; } = null!;
     }
 }
